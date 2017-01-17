@@ -1,0 +1,84 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Bitmap Editor</title>
+
+    <link rel="stylesheet" type="text/css" href="/assets/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/assets/bootstrap-theme.css">
+    <link rel="stylesheet" type="text/css" href="/assets/app.css">
+
+    <script type="text/x-template" id="item">
+        <div :class="{ pixel: true, inverse: active }"
+             @click="toggle"
+             @mouseout="onMouseOut"
+             @mousemove="onMove">
+        </div>
+    </script>
+</head>
+
+<body>
+    <!-- @see https://github.com/vuejs/Discussion/issues/24 -->
+    <input id="open-file" type="file" accept="application/json" onchange="app.open(this.files[0])" />
+
+    <div id="app">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Bitmap Editor</a>
+                </div>
+
+                <p class="navbar-text">Width:</p>
+                <form class="navbar-form navbar-left">
+                    <div class="form-group">
+                        <input type="number" class="form-control" v-model="cols">
+                    </div>
+                </form>
+                <p class="navbar-text">Height:</p>
+                <form class="navbar-form navbar-left">
+                    <div class="form-group">
+                        <input type="number" class="form-control" v-model="rows">
+                    </div>
+                </form>
+                <form class="navbar-form navbar-left">
+                    <label for="open-file" class="btn btn-default">Import</label>
+                </form>
+                <form class="navbar-form navbar-left">
+                    <button type="button" class="btn btn-default" @click="dump">Export</button>
+                </form>
+                <form class="navbar-form navbar-left">
+                    <button type="button" class="btn btn-default" @click="reset">Reset</button>
+                </form>
+            </div>
+        </nav>
+
+        <br>
+
+        <div id="grid">
+            <div class="col" v-for="(col, x) in icon">
+                <item v-for="(row, y) in col" :active="row" :x="x" :y="y">
+                </item>
+            </div>
+        </div>
+
+        <br>
+
+        <pre id="result" v-if="result">{{ cppSource }}</pre>
+
+        <br>
+
+        <button class="copy btn btn-default" data-clipboard-target="#result">Copy to clipboard</button>
+
+        <div id="footer">
+            Made with ❤️ by <a href="http://github.com/objectionlabs" target="_blank">Objection Labs</a>
+        </div>
+    </div>
+
+    <script src="/assets/default-bitmap.js"></script>
+    <script src="/assets/clipboard.js"></script>
+    <script src="/assets/download.js"></script>
+    <script src="/assets/vue.js"></script>
+    <script src="/assets/app.js"></script>
+</body>
+</html>

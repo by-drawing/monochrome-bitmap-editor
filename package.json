@@ -1,0 +1,41 @@
+{
+  "name": "monochrome-bitmap-editor",
+  "version": "0.0.1",
+  "description": "Dead simple monochrome bitmap editor with byte array output.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/objectionlabs/monochrome-bitmap-editor.git"
+  },
+  "keywords": [
+    "monochrome",
+    "bitmap",
+    "editor",
+    "hardware",
+    "embedded",
+    "development",
+    "oled",
+    "display",
+    "byte",
+    "array",
+    "cpp",
+    "c++",
+    "iot",
+    "adafruit"
+  ],
+  "author": "Balazs Schwarzkopf <schwarzkopfb@icloud.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/objectionlabs/monochrome-bitmap-editor/issues"
+  },
+  "homepage": "https://github.com/objectionlabs/monochrome-bitmap-editor#readme",
+  "dependencies": {
+    "finalhandler": "^0.5.1",
+    "serve-static": "^1.11.1",
+    "server-destroy": "^1.0.1"
+  }
+}
