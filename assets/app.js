@@ -72,7 +72,9 @@ window.onload = function (exports) {
         data: {
             cols: 64,
             rows: 32,
-            icon: fill(64, 32)
+            icon: fill(64, 32),
+            editing: false,
+            editedSource: ''
         },
         watch: {
             cols: function () {
@@ -84,48 +86,104 @@ window.onload = function (exports) {
             icon: function () {
                 clearTimeout(saveTimeout)
                 saveTimeout = setTimeout(this.save, 1000)
+            },
+            editing: function (value) {
+                if (value)
+                    this.editedSource = this.cppSource
+                else
+                    this.cppSource = this.editedSource
             }
         },
         computed: {
-            bytes: function () {
-                var bytes = [],
-                    byte  = 0,
-                    ic    = this.cols * this.rows / 8,
-                    cy    = 0,
-                    x     = 0
+            bytes: {
+                get: function () {
+                    var bytes = [],
+                        byte  = 0,
+                        ic    = this.cols * this.rows / 8,
+                        cy    = 0,
+                        x     = 0,
+                        i     = 0
 
-                for (var i = 0; i < ic; i++, x++) {
-                    if (x === this.cols) {
-                        x = 0
-                        cy += 8
+                    for (; i < ic; i++, x++) {
+                        if (x === this.cols) {
+                            x = 0
+                            cy += 8
+                        }
+
+                        var col = this.icon[ x ]
+
+                        for (var y = cy, n = 0, b = 0; n < 8; y++, n++) {
+                            if (col[ y ])
+                                b += Math.pow(2, n)
+                        }
+
+                        bytes.push(b)
                     }
 
-                    var col = this.icon[ x ]
+                    return bytes
+                },
+                set: function (bytes) {
+                    var l = bytes.length,
+                        cy = 0,
+                        x = 0,
+                        i = 0
 
-                    for (var y = cy, n = 0, b = 0; n < 8; y++, n++) {
-                        if (col[ y ])
-                            b += Math.pow(2, n)
+                    for (; i < l; i++, x++) {
+                        if (x === this.cols) {
+                            x = 0
+                            cy += 8
+                        }
+
+                        var b = bytes[ i ]
+
+                        for (var y = cy, n = 0; n < 8; y++, n++)
+                            Vue.set(this.icon[ x ], y, b & Math.pow(2, n))
                     }
-
-                    bytes.push(b)
                 }
-
-                return bytes
             },
-            cppSource: function () {
-                var src = 'const uint8_t bitmap[ ' + this.cols + ' * ' + this.rows + ' / 8 ] = {'
+            cppSource: {
+                get: function () {
+                    var src = 'const uint8_t bitmap[ ' + this.cols + ' * ' + this.rows + ' / 8 ] = {'
 
-                for (var i = 0, l = this.bytes.length; i < l; i++) {
-                    if (i % 16 === 0)
-                        src += '\n    '
+                    for (var i = 0, l = this.bytes.length; i < l; i++) {
+                        if (i % 16 === 0)
+                            src += '\n    '
 
-                    src += format(this.bytes[ i ])
+                        src += format(this.bytes[ i ])
 
-                    if (i < l - 1)
-                        src += ', '
+                        if (i < l - 1)
+                            src += ', '
+                    }
+
+                    return src += '\n};'
+                },
+                set: function (source) {
+                    var start = source.indexOf('{'),
+                        end   = source.indexOf('}')
+
+                    if (~start)
+                        start += 1
+                    else
+                        start = 0
+
+                    if (!~end)
+                        end = source.length
+
+                    try {
+                        var bytes = source
+                            .substring(start, end)
+                            .trim()
+                            .split(/\s*,\s*\n?/g)
+                            .filter(Boolean)
+                            .map(Number)
+                    }
+                    finally {
+                        if (Array.isArray(bytes) && bytes.length && !bytes.some(isNaN))
+                            this.bytes = bytes
+                        else
+                            alert('Unable to recognize bitmap from source code.')
+                    }
                 }
-
-                return src += '\n};'
             }
         },
         methods: {

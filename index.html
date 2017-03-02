@@ -64,11 +64,14 @@
 
         <br>
 
-        <pre id="result" v-if="result">{{ cppSource }}</pre>
+        <pre id="result" v-if="!editing">{{ cppSource }}</pre>
+        <textarea id="edit-source" class="form-control" rows="18" v-if="editing" v-model="editedSource">{{ cppSource }}</textarea>
 
         <br>
 
-        <button class="copy btn btn-default" data-clipboard-target="#result">Copy to clipboard</button>
+        <button v-if="!editing" class="copy btn btn-default" data-clipboard-target="#result">Copy to clipboard</button>
+        <button v-if="!editing" @click="editing = true" class="btn btn-default">Edit source</button>
+        <button v-if="editing" @click="editing = false" class="btn btn-default">Done</button>
 
         <div id="footer">
             Made with ❤️ by <a href="http://github.com/objectionlabs" target="_blank">Objection Labs</a>
